@@ -1,4 +1,6 @@
 const { check, validationResult } = require('express-validator');
+const Security = require('../models/SecurityModel');
+
 
 // Middleware to check if the tenant exists
 const checkTenantExists = async (req, res, next) => {

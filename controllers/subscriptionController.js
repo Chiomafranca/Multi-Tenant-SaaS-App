@@ -2,7 +2,7 @@ const Subscription = require('../models/SubscriptionModel');
 
 
 //create Subscription 
-exports.createSubscription = async () =>{
+const createSubscription = async () =>{
    
     try {
         const { tenant, stripeCustomerId, stripeSubscriptionId, planType, endDate } = req.body;
@@ -16,7 +16,7 @@ exports.createSubscription = async () =>{
 };
 
 // get Subscription 
-exports.getSubscription = async () =>{
+const getSubscription = async () =>{
 
     try {
         const subscription = await Subscription.findById(req.params.id);
@@ -30,7 +30,7 @@ exports.getSubscription = async () =>{
 };
 
 //get All Subscriptions
-exports.getAllSubscriptions = async () =>{
+const getAllSubscriptions = async () =>{
     try {
         const subscriptions = await Subscription.find();
         res.json(subscriptions)
@@ -40,7 +40,7 @@ exports.getAllSubscriptions = async () =>{
 };
 
 //Update Subscription
-exports.updateSubscription = async () =>{
+const updateSubscription = async () =>{
 
     try {
         const subscription = await Subscription.findByIdAndUpdate(req.params.id, req.body, {new: true});
@@ -53,7 +53,7 @@ exports.updateSubscription = async () =>{
 
 //delete Subscription
 
-exports.deleteSubscription = async () =>{
+const deleteSubscription = async () =>{
     try {
         const subscription = await Subscription.findByIdAndDelete(req.params.id);
         if(!subscription) return res.status(404).json({message: 'Subscription not found'});
@@ -66,7 +66,7 @@ exports.deleteSubscription = async () =>{
 
 
 //deactivate Subscription 
-exports.deactivateSubscription = async () =>{
+const deactivateSubscription = async () =>{
 
       try {
         const subscription = await Subscription.findById(req.params.is);
@@ -81,3 +81,12 @@ exports.deactivateSubscription = async () =>{
         res.status(400).json({ error: error.message });
       }
 }
+
+module.exports={
+     createSubscription,
+     getAllSubscriptions,
+     getSubscription,
+     updateSubscription,
+     deactivateSubscription,
+     deleteSubscription
+    }

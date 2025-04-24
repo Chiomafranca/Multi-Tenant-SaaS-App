@@ -1,5 +1,5 @@
 const Tenant = require('../models/TenantModel');
-const { validateTenantData } = require('../utils/validationUtils'); // Assuming you have a validation utility
+const { validateTenantData } = require('../utils/validationUtils'); 
 
 // Middleware to check if tenant exists
 const checkTenantExists = async (req, res, next) => {

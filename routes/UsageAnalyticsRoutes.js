@@ -1,28 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const usageAnalyticsController = require('../controllers/usageAnalyticsController');
 const {
   checkUsageExists,
   validateUsage,
   authenticateTenantAccess
 } = require('../middleware/usageAnalyticsMiddleware');
+const { trackUsage, getTenantUsage, getUsageByFeature, getUsageById, updateUsage, deleteUsage } = require('../controllers/usageAnalyticsController');
 
 
-router.post('/', validateUsage, usageAnalyticsController.trackUsage);
+router.post('/', validateUsage, trackUsage);
 
 
-router.get('/tenant/:tenantId', authenticateTenantAccess, usageAnalyticsController.getTenantUsage);
+router.get('/tenant/:tenantId', authenticateTenantAccess, getTenantUsage)
 
 
-router.get('/feature/:feature', usageAnalyticsController.getUsageByFeature);
+router.get('/feature/:feature', getUsageByFeature);
 
 
-router.get('/:id', checkUsageExists, usageAnalyticsController.getUsageById);
+router.get('/:id', checkUsageExists, getUsageById);
 
 
-router.put('/:id', checkUsageExists, validateUsage, usageAnalyticsController.updateUsage);
+router.put('/:id', checkUsageExists, validateUsage, updateUsage);
 
 
-router.delete('/:id', checkUsageExists, usageAnalyticsController.deleteUsage);
+router.delete('/:id', checkUsageExists, deleteUsage);
 
 module.exports = router;

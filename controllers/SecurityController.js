@@ -2,7 +2,7 @@ const Security = require('../models/Security');
 const AccessLog = require('../models/AccessLog');
 
 // Create security settings for a tenant
-exports.createSecuritySettings = async (req, res) => {
+const createSecuritySettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
     
@@ -30,7 +30,7 @@ exports.createSecuritySettings = async (req, res) => {
 };
 
 // Update Two-Factor Authentication setting
-exports.updateTwoFactor = async (req, res) => {
+const updateTwoFactor = async (req, res) => {
   try {
     const { tenantId } = req.params;
     const { twoFactorEnabled } = req.body;
@@ -50,7 +50,7 @@ exports.updateTwoFactor = async (req, res) => {
 };
 
 // Get security settings for a tenant
-exports.getSecuritySettings = async (req, res) => {
+const getSecuritySettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -66,7 +66,7 @@ exports.getSecuritySettings = async (req, res) => {
 };
 
 // Update password policy
-exports.updatePasswordPolicy = async (req, res) => {
+const updatePasswordPolicy = async (req, res) => {
   try {
     const { tenantId } = req.params;
     const { minLength, requireNumbers, requireSpecialCharacters } = req.body;
@@ -86,7 +86,7 @@ exports.updatePasswordPolicy = async (req, res) => {
 };
 
 // Get all access logs for a tenant
-exports.getAccessLogs = async (req, res) => {
+const getAccessLogs = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -102,7 +102,7 @@ exports.getAccessLogs = async (req, res) => {
 };
 
 // Delete security settings for a tenant
-exports.deleteSecuritySettings = async (req, res) => {
+const deleteSecuritySettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -116,3 +116,11 @@ exports.deleteSecuritySettings = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={createSecuritySettings,
+   getSecuritySettings,
+    updateTwoFactor,
+     getAccessLogs,
+     updatePasswordPolicy,
+     deleteSecuritySettings
+    }

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');  // Assuming you have a User model
 
 // Authentication Middleware (Verify JWT)
-exports.authenticate = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {
     return res.status(401).json({ message: 'Access denied. No token provided.' });
@@ -18,7 +18,7 @@ exports.authenticate = async (req, res, next) => {
 };
 
 
-exports.authorizeFeatureToggle = (allowedRoles) => {
+const authorizeFeatureToggle = (allowedRoles) => {
   return async (req, res, next) => {
     const user = req.user;
     
@@ -34,3 +34,5 @@ exports.authorizeFeatureToggle = (allowedRoles) => {
     next();
   };
 };
+
+module.exports={authenticate, authorizeFeatureToggle};

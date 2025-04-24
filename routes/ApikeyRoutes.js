@@ -1,15 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const APIKeyController = require('../controllers/ApiKeyController');
-const apiKeyMiddleware = require('../middleware/apiKeyMiddleware'); 
-const authenticate = require('../middleware/authMiddleware'); 
-const authorize = require('../middleware/roleMiddleware'); 
+const apiKeyMiddleware = require('../middlewares/apiKeyMiddleware'); 
+const authenticate = require('../middlewares/authMiddleware'); 
+const {
+  createAPIKey,
+  deleteAPIKey,
+  updateAPIKey,
+  getAllAPIKeys,
+  getAPIKeyById
+} = require('../controllers/ApiKeyController');
 
-// Apply authentication and role-based authorization where necessary
-router.post('/api-keys', authenticate, authorize(['admin']), APIKeyController.createAPIKey);
-router.get('/api-keys/tenant/:tenantId', authenticate, authorize(['admin', 'tenantOwner']), APIKeyController.getTenantAPIKeys);
-router.get('/api-keys/:id', authenticate, apiKeyMiddleware, APIKeyController.getAPIKeyById);
-router.put('/api-keys/:id', authenticate, apiKeyMiddleware, APIKeyController.updateAPIKey);
-router.delete('/api-keys/:id', authenticate, authorize(['admin']), APIKeyController.deleteAPIKey);
+router.post('/', authenticate, createAPIKey);
+router.get('/', authenticate, apiKeyMiddleware, getAllAPIKeys);
+router.get('/:id', authenticate,  getAPIKeyById);
+router.put('/:id', authenticate, apiKeyMiddleware, updateAPIKey); 
+router.delete('/:id', authenticate,  deleteAPIKey);
 
 module.exports = router;

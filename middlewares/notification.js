@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Middleware to check if the user is authenticated
-exports.authenticate = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,7 +21,7 @@ exports.authenticate = async (req, res, next) => {
 };
 
 // Middleware to authorize the user based on roles or other checks
-exports.authorizeNotification = (roles) => {
+const authorizeNotification = (roles) => {
   return async (req, res, next) => {
     try {
       const user = req.user;
@@ -37,3 +37,5 @@ exports.authorizeNotification = (roles) => {
     }
   };
 };
+
+module.exports={authenticate, authorizeNotification}

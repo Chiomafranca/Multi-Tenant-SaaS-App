@@ -1,7 +1,7 @@
 const Settings = require('../models/Settings');
 
 // Get settings for a tenant
-exports.getSettings = async (req, res) => {
+const getSettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
     const settings = await Settings.findOne({ tenantId });
@@ -18,7 +18,7 @@ exports.getSettings = async (req, res) => {
 };
 
 // Create or update settings for a tenant
-exports.updateSettings = async (req, res) => {
+const updateSettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
     const updates = req.body;
@@ -37,7 +37,7 @@ exports.updateSettings = async (req, res) => {
 };
 
 // Get all tenants' settings
-exports.getAllSettings = async (req, res) => {
+const getAllSettings = async (req, res) => {
     try {
       const settings = await Settings.find();
       res.status(200).json(settings);
@@ -49,7 +49,7 @@ exports.getAllSettings = async (req, res) => {
   
 
 // Reset settings to default for a tenant
-exports.resetSettings = async (req, res) => {
+const resetSettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -71,7 +71,7 @@ exports.resetSettings = async (req, res) => {
 };
 
 // Delete settings for a tenant (Not common, but useful)
-exports.deleteSettings = async (req, res) => {
+const deleteSettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -86,3 +86,5 @@ exports.deleteSettings = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={getSettings, updateSettings, getAllSettings, resetSettings, deleteSettings}

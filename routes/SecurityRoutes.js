@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const SecurityController = require('../controllers/SecurityController');
 const { checkAdminPermission } = require('../middleware/securityMiddleware');
+const { createSecuritySettings, updateTwoFactor, getSecuritySettings, updatePasswordPolicy, getAccessLogs, deleteSecuritySettings } = require('../controllers/SecurityController');
 
 
-router.post('/:tenantId', checkAdminPermission, SecurityController.createSecuritySettings);
+router.post('/:tenantId', checkAdminPermission, createSecuritySettings);
 
 
-router.put('/:tenantId/two-factor', checkAdminPermission, SecurityController.updateTwoFactor);
+router.put('/:tenantId/two-factor', checkAdminPermission, updateTwoFactor);
 
 
-router.get('/:tenantId', checkAdminPermission, SecurityController.getSecuritySettings);
+router.get('/:tenantId', checkAdminPermission, getSecuritySettings);
 
 
-router.put('/:tenantId/password-policy', checkAdminPermission, SecurityController.updatePasswordPolicy);
+router.put('/:tenantId/password-policy', checkAdminPermission, updatePasswordPolicy);
 
 
-router.get('/:tenantId/access-logs', checkAdminPermission, SecurityController.getAccessLogs);
+router.get('/:tenantId/access-logs', checkAdminPermission, getAccessLogs);
 
 
-router.delete('/:tenantId', checkAdminPermission, SecurityController.deleteSecuritySettings);
+router.delete('/:tenantId', checkAdminPermission, deleteSecuritySettings);
 
 module.exports = router;

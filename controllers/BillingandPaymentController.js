@@ -3,7 +3,7 @@ const BillingPayment = require('../models/BillingPayment');
 
 
 
-exports.createOrUpdateBillingPayment = async (req, res) => {
+const createOrUpdateBillingPayment = async (req, res) => {
   try {
     const { tenantId, stripeCustomerId, stripeSubscriptionId, subscriptionPlan, subscriptionStatus, totalAmountDue, nextBillingDate } = req.body;
 
@@ -40,7 +40,7 @@ exports.createOrUpdateBillingPayment = async (req, res) => {
 };
 
 // Add a Payment to an Invoice
-exports.addPayment = async (req, res) => {
+const addPayment = async (req, res) => {
   try {
     const { tenantId, invoiceNumber, amountPaid, paymentMethod } = req.body;
 
@@ -74,7 +74,7 @@ exports.addPayment = async (req, res) => {
 };
 
 // Get Billing/Payment Info for a Tenant
-exports.getBillingPaymentInfo = async (req, res) => {
+const getBillingPaymentInfo = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -92,7 +92,7 @@ exports.getBillingPaymentInfo = async (req, res) => {
 };
 
 // Get All Billing/Payment Info
-exports.getAllBillingPayments = async (req, res) => {
+const getAllBillingPayments = async (req, res) => {
   try {
     const billingPayments = await BillingPayment.find().populate('tenantId');
 
@@ -108,7 +108,7 @@ exports.getAllBillingPayments = async (req, res) => {
 };
 
 // Update Billing/Payment Info for a Tenant
-exports.updateBillingPayment = async (req, res) => {
+const updateBillingPayment = async (req, res) => {
   try {
     const { tenantId } = req.params;
     const { stripeCustomerId, stripeSubscriptionId, subscriptionPlan, subscriptionStatus, totalAmountDue, nextBillingDate } = req.body;
@@ -137,7 +137,7 @@ exports.updateBillingPayment = async (req, res) => {
 };
 
 // Delete Billing/Payment Info for a Tenant
-exports.deleteBillingPayment = async (req, res) => {
+const deleteBillingPayment = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -153,3 +153,12 @@ exports.deleteBillingPayment = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={
+  createOrUpdateBillingPayment,
+   addPayment,
+    getAllBillingPayments,
+     getBillingPaymentInfo,
+      updateBillingPayment,
+      deleteBillingPayment
+     }

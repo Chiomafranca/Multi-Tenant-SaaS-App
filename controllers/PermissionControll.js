@@ -1,7 +1,7 @@
 const Permission = require('../models/Permission');
 
 // Create a new permission
-exports.createPermission = async (req, res) => {
+const createPermission = async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -21,7 +21,7 @@ exports.createPermission = async (req, res) => {
 };
 
 // Get all permissions
-exports.getPermissions = async (req, res) => {
+const getPermissions = async (req, res) => {
   try {
     const permissions = await Permission.find();
     res.status(200).json(permissions);
@@ -31,7 +31,7 @@ exports.getPermissions = async (req, res) => {
 };
 
 // Get a single permission by ID
-exports.getPermissionById = async (req, res) => {
+const getPermissionById = async (req, res) => {
   try {
     const permission = await Permission.findById(req.params.permissionId);
     if (!permission) {
@@ -44,7 +44,7 @@ exports.getPermissionById = async (req, res) => {
 };
 
 // Update a permission
-exports.updatePermission = async (req, res) => {
+const updatePermission = async (req, res) => {
   try {
     const { name, description } = req.body;
 
@@ -64,7 +64,7 @@ exports.updatePermission = async (req, res) => {
 };
 
 // Delete a permission
-exports.deletePermission = async (req, res) => {
+const deletePermission = async (req, res) => {
   try {
     const permission = await Permission.findByIdAndDelete(req.params.permissionId);
     if (!permission) {
@@ -76,3 +76,5 @@ exports.deletePermission = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={createPermission, getPermissionById, getPermissions, updatePermission, deletePermission}

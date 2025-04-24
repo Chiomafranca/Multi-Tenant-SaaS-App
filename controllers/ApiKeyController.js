@@ -1,7 +1,7 @@
-const APIKey = require('../models/APIKey');
+const APIKey = require('../models/APIKeyModel');
 
 // Create API Key
-exports.createAPIKey = async (req, res) => {
+const createAPIKey = async (req, res) => {
   try {
     const { tenantId, name, scopes } = req.body;
 
@@ -19,14 +19,9 @@ exports.createAPIKey = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
-// Get all API keys for a tenant
-exports.getTenantAPIKeys = async (req, res) => {
+const getAllAPIKeys = async (req, res) => {
   try {
-    const { tenantId } = req.params;
-
-    const apiKeys = await APIKey.find({ tenantId });
-
+    const apiKeys = await APIKey.find(); // no tenantId filter
     res.status(200).json(apiKeys);
   } catch (error) {
     console.error(error);
@@ -34,8 +29,9 @@ exports.getTenantAPIKeys = async (req, res) => {
   }
 };
 
+
 // Get a single API key by ID
-exports.getAPIKeyById = async (req, res) => {
+const getAPIKeyById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -53,7 +49,7 @@ exports.getAPIKeyById = async (req, res) => {
 };
 
 // Update API Key (e.g., change scopes)
-exports.updateAPIKey = async (req, res) => {
+const updateAPIKey = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, scopes, isActive } = req.body;
@@ -76,7 +72,7 @@ exports.updateAPIKey = async (req, res) => {
 };
 
 // Delete API Key
-exports.deleteAPIKey = async (req, res) => {
+const deleteAPIKey = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -92,3 +88,5 @@ exports.deleteAPIKey = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={createAPIKey, getAllAPIKeys, getAPIKeyById, updateAPIKey, deleteAPIKey}

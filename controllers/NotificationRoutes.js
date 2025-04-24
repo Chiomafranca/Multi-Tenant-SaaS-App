@@ -2,7 +2,7 @@
 const Notification = require('../models/Notification');
 
 // Create a new notification
-exports.createNotification = async (req, res) => {
+const createNotification = async (req, res) => {
   try {
     const { userId, tenantId, title, message, type } = req.body;
 
@@ -23,7 +23,7 @@ exports.createNotification = async (req, res) => {
 };
 
 // Get a single notification by ID
-exports.getNotificationById = async (req, res) => {
+const getNotificationById = async (req, res) => {
     try {
       const { id } = req.params;
   
@@ -42,7 +42,7 @@ exports.getNotificationById = async (req, res) => {
   
 
 // Get all notifications for a user
-exports.getUserNotifications = async (req, res) => {
+const getUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -60,7 +60,7 @@ exports.getUserNotifications = async (req, res) => {
 };
 
 // Mark a notification as read
-exports.markAsRead = async (req, res) => {
+const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -78,7 +78,7 @@ exports.markAsRead = async (req, res) => {
 };
 
 // Delete a notification
-exports.deleteNotification = async (req, res) => {
+const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -96,7 +96,7 @@ exports.deleteNotification = async (req, res) => {
 };
 
 // Delete all notifications for a user
-exports.deleteAllUserNotifications = async (req, res) => {
+const deleteAllUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -108,3 +108,5 @@ exports.deleteAllUserNotifications = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={createNotification, getNotificationById, getUserNotifications, markAsRead, deleteAllUserNotifications, deleteNotification}

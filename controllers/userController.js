@@ -2,7 +2,7 @@ const User = require('../models/User')
 
 
 //create User
-exports.createUser = async () =>{
+const createUser = async () =>{
    
     try {
       const user = new User(req.body);
@@ -14,7 +14,7 @@ exports.createUser = async () =>{
 }
 
 //get one user
-exports.getUserById = () =>{
+const getUserById = () =>{
        
     try {
         const user = User.findById(req.params.id).populate('tenant');
@@ -27,7 +27,7 @@ exports.getUserById = () =>{
 }
 
 //getUsers
-exports.getUsers = async () =>{
+const getUsers = async () =>{
 
     try {
         const users = await User.find().populate('tenant');
@@ -39,7 +39,7 @@ exports.getUsers = async () =>{
 }
 
 //updateUser
-exports.updateUser = async () =>{
+const updateUser = async () =>{
     try {
         const { email, role, tenant } = req.body;
         
@@ -51,7 +51,7 @@ exports.updateUser = async () =>{
 }
 
 // Delete User
-exports.deleteUser = async () =>{
+const deleteUser = async () =>{
 
     try {
         const user = await User.findByIdAndDelete(req.params.id);
@@ -62,3 +62,4 @@ exports.deleteUser = async () =>{
          res.status(500).json({message: "Server Error", error: error.message})
     }
 }
+module.exports = {createUser, getUserById, getUsers, updateUser, deleteUser}

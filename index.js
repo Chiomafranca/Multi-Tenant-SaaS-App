@@ -6,82 +6,65 @@ const morgan = require('morgan');
 const passport = require('passport');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
+
 const { setupSwagger } = require('./config/swagger');
-const winston = require('./config/logger');
+const logger = require('./config/logger');
 const { setupDatabaseMigrations } = require('./config/migrations');
 const { applyRateLimiting } = require('./middlewares/rateLimiter');
-const { auditLogger } = require('./middlewares/auditLogger');
 const { initGraphQL } = require('./config/graphql');
-const { setupBullMQ } = require('./config/bullmq');
 const { setupTelemetry } = require('./config/opentelemetry');
 const { applySecurity } = require('./config/security');
 const { setupUptime } = require('./config/uptime');
 const { monitorUptime } = require('./services/uptimeService');
 const connectDB = require("./config/db");
 
-
-// Import Routes
+// Routes
 const authRoutes = require('./routes/authRoutes');
 const tenantRoutes = require('./routes/tenantRoutes');
 const paymentRoutes = require('./routes/subscriptionRoutes');
 const roleRoutes = require('./routes/roleRoutes');
+const auditLoggerRoutes = require('./routes/ActivityLogRoutes');
+const apiKeyRoutes = require('./routes/ApikeyRoutes');
+
+// Cookie parsing middleware
+const cookieParser = require('cookie-parser');
 
 // App Initialization
 const app = express();
 
-// Security & Middleware
+// Core Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use(morgan('combined', { stream: winston.stream }));
-app.use(auditLogger);
+app.use(cookieParser());  // ✅ Added cookie-parser
+app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 
-connectDB()
-
-// Initialize Passport (OAuth2, JWT)
+// Security & Monitoring
+connectDB();
 passport.initialize();
-
-// Migrations
 setupDatabaseMigrations();
-
-// Setup GraphQL
 initGraphQL(app);
-
-// Setup Background Jobs
-setupBullMQ();
-
-// Setup OpenTelemetry Monitoring
 setupTelemetry();
-
-// Start Uptime Monitoring
 monitorUptime();
-
-// Apply Security Headers
 applySecurity(app);
-
-// Setup Swagger API Docs
 setupSwagger(app);
-
+applyRateLimiting(app); // ✅ Apply before routes
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/tenants', tenantRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api/audit', auditLoggerRoutes); // ✅ Audit log route
+app.use('/api/apikey', apiKeyRoutes)
 
-// Apply Rate Limiting Middleware
-applyRateLimiting(app);
+// Misc Routes
+app.get('/healthcheck', (req, res) => res.status(200).send('OK'));
+app.get('/debug-sentry', () => { throw new Error('My first Sentry error!'); });
 
-// Start Server
-const PORT = process.env.PORT;
+// Server Start
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  winston.info(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
-
-// Sentry Debug Route
-app.get('/debug-sentry', function mainHandler(req, res) {
-  throw new Error('My first Sentry error!');
-});
-
-// continue

@@ -1,7 +1,8 @@
 const UsageAnalytics = require('../models/UsageAnalytics');
+const { deleteTenant } = require('./tenantController');
 
 // Track usage
-exports.trackUsage = async (req, res) => {
+const trackUsage = async (req, res) => {
   try {
     const { tenantId, userId, feature } = req.body;
 
@@ -29,7 +30,7 @@ exports.trackUsage = async (req, res) => {
 };
 
 
-exports.getTenantUsage = async (req, res) => {
+const getTenantUsage = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
@@ -43,7 +44,7 @@ exports.getTenantUsage = async (req, res) => {
 };
 
 
-exports.getUsageByFeature = async (req, res) => {
+const getUsageByFeature = async (req, res) => {
   try {
     const { feature } = req.params;
 
@@ -56,8 +57,7 @@ exports.getUsageByFeature = async (req, res) => {
   }
 };
 
-
-exports.getUsageById = async (req, res) => {
+const getUsageById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -75,7 +75,7 @@ exports.getUsageById = async (req, res) => {
 };
 
 
-exports.updateUsage = async (req, res) => {
+const updateUsage = async (req, res) => {
   try {
     const { id } = req.params;
     const { feature, count } = req.body;
@@ -98,7 +98,7 @@ exports.updateUsage = async (req, res) => {
 };
 
 
-exports.deleteUsage = async (req, res) => {
+const deleteUsage = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -114,3 +114,5 @@ exports.deleteUsage = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports={trackUsage, getTenantUsage, getUsageByFeature, getUsageById, updateUsage, deleteUsage} 

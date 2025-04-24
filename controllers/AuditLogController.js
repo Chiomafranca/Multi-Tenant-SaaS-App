@@ -1,7 +1,7 @@
 const AuditLog = require('../models/AuditLog');
 
 // Get all audit logs
-exports.getAllAuditLogs = async (req, res) => {
+const getAllAuditLogs = async (req, res) => {
   try {
     const logs = await AuditLog.find();
     res.status(200).json(logs);
@@ -12,7 +12,7 @@ exports.getAllAuditLogs = async (req, res) => {
 };
 
 // Get a single audit log by ID
-exports.getAuditLogById = async (req, res) => {
+const getAuditLogById = async (req, res) => {
   try {
     const { id } = req.params;
     const log = await AuditLog.findById(id);
@@ -27,7 +27,7 @@ exports.getAuditLogById = async (req, res) => {
 };
 
 // Create an audit log
-exports.createAuditLog = async (req, res) => {
+const createAuditLog = async (req, res) => {
   try {
     const { tenantId, userId, action, entity, entityId, details } = req.body;
 
@@ -42,7 +42,7 @@ exports.createAuditLog = async (req, res) => {
 };
 
 // Update an audit log (not common, but useful for corrections)
-exports.updateAuditLog = async (req, res) => {
+const updateAuditLog = async (req, res) => {
   try {
     const { id } = req.params;
     const { action, entity, details } = req.body;
@@ -65,7 +65,7 @@ exports.updateAuditLog = async (req, res) => {
 };
 
 // Delete an audit log
-exports.deleteAuditLog = async (req, res) => {
+const deleteAuditLog = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -80,3 +80,5 @@ exports.deleteAuditLog = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+module.exports = {getAllAuditLogs, getAuditLogById, createAuditLog, updateAuditLog, deleteAuditLog}

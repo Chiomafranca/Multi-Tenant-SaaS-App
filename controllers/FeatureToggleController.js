@@ -2,7 +2,7 @@
 const FeatureToggle = require('../models/FeatureToggle');
 
 // Create a new feature toggle
-exports.createFeatureToggle = async (req, res) => {
+const createFeatureToggle = async (req, res) => {
   const { tenantId, featureName, enabled } = req.body;
 
   try {
@@ -26,7 +26,7 @@ exports.createFeatureToggle = async (req, res) => {
 };
 
 // Update an existing feature toggle
-exports.updateFeatureToggle = async (req, res) => {
+const updateFeatureToggle = async (req, res) => {
   const { tenantId, featureName, enabled } = req.body;
 
   try {
@@ -54,7 +54,7 @@ exports.updateFeatureToggle = async (req, res) => {
 };
 
 // Delete a feature toggle
-exports.deleteFeatureToggle = async (req, res) => {
+const deleteFeatureToggle = async (req, res) => {
   const { tenantId, featureName } = req.params;
 
   try {
@@ -78,7 +78,7 @@ exports.deleteFeatureToggle = async (req, res) => {
 };
 
 // Get all feature toggles for a tenant
-exports.getFeatureTogglesForTenant = async (req, res) => {
+const getFeatureTogglesForTenant = async (req, res) => {
   const { tenantId } = req.params;
 
   try {
@@ -94,7 +94,7 @@ exports.getFeatureTogglesForTenant = async (req, res) => {
 };
 
 // Get all feature toggles for all tenants (Admin functionality)
-exports.getAllFeatureToggles = async (req, res) => {
+const getAllFeatureToggles = async (req, res) => {
   try {
     const toggles = await FeatureToggle.find();
     return res.status(200).json(toggles);
@@ -103,3 +103,11 @@ exports.getAllFeatureToggles = async (req, res) => {
     return res.status(500).json({ message: 'An error occurred while retrieving feature toggles.', error });
   }
 };
+
+module.exports = {
+  createFeatureToggle,
+   updateFeatureToggle,
+    deleteFeatureToggle,
+    getFeatureTogglesForTenant,
+    getAllFeatureToggles
+  }

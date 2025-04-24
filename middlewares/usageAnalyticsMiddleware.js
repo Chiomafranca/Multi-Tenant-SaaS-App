@@ -1,7 +1,8 @@
 const UsageAnalytics = require('../models/UsageAnalytics');
-const { validateUsageData } = require('../utils/validationUtils'); // Assuming you have a validation utility
+const { validateUsageData } = require('../utils/validationUtils'); 
 
-// Middleware to check if usage record exists
+
+
 const checkUsageExists = async (req, res, next) => {
   try {
     const usage = await UsageAnalytics.findById(req.params.id);
@@ -14,19 +15,19 @@ const checkUsageExists = async (req, res, next) => {
   }
 };
 
-// Middleware to validate usage data
+
 const validateUsage = (req, res, next) => {
   const { tenantId, userId, feature } = req.body;
-  const { error } = validateUsageData({ tenantId, userId, feature }); // Assume this function validates the data
+  const { error } = validateUsageData({ tenantId, userId, feature }); 
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
   }
   next();
 };
 
-// Middleware to check if tenant has access to usage data (Optional)
+
 const authenticateTenantAccess = (req, res, next) => {
-  const user = req.user; // Assuming the user is set in the request object after authentication
+  const user = req.user;
   const tenantId = req.params.tenantId || req.body.tenantId;
 
   if (user && user.tenantId === tenantId) {
