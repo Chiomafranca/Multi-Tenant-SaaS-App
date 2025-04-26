@@ -3,16 +3,17 @@ const Security = require('../models/SecurityModel');
 
 
 // Middleware to check if the tenant exists
+// Middleware to check if the tenant already has security settings
 const checkTenantExists = async (req, res, next) => {
   try {
     const { tenantId } = req.params;
     const securitySettings = await Security.findOne({ tenantId });
 
-    if (!securitySettings) {
-      return res.status(404).json({ message: 'Tenant security settings not found' });
+    if (securitySettings) {
+      return res.status(400).json({ message: 'Security settings already exist for this tenant' });
     }
 
-    next();
+    next(); // Proceed to create security settings
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

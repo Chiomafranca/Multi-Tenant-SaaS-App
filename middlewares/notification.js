@@ -1,25 +1,35 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/UserModel');
 
 // Middleware to check if the user is authenticated
-const authenticate = async (req, res, next) => {
+const auth = (req, res, next) => {
+  let token = req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer ') 
+    ? req.headers['authorization'].split(' ')[1] 
+    : req.cookies.token;
+
+  console.log("Token extracted:", token);
+  console.log('SECRET_KEY in middleware:', process.env.SECRET_KEY);  
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token is missing' });
+  }
+
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);  
+    req.user = decoded;  
+    next();  
+  } catch (error) {
+    console.error("JWT Error:", error);
 
-    const user = await User.findOne({ _id: decoded.id });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Authentication failed. User not found.' });
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({ message: 'Token has expired' });
     }
 
-    req.user = user;
-    next();
-  } catch (error) {
-    res.status(500).json({ message: 'Authentication error', error });
+    
+    res.status(403).json({ message: 'Invalid or malformed token' });
   }
 };
-
 // Middleware to authorize the user based on roles or other checks
 const authorizeNotification = (roles) => {
   return async (req, res, next) => {
@@ -38,4 +48,4 @@ const authorizeNotification = (roles) => {
   };
 };
 
-module.exports={authenticate, authorizeNotification}
+module.exports={auth, authorizeNotification}

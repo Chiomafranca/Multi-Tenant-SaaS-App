@@ -7,7 +7,7 @@ const checkSubscriptionExists = async (req, res, next) => {
     if (!subscription) {
       return res.status(404).json({ message: 'Subscription not found' });
     }
-    req.subscription = subscription; // Pass subscription to next middleware/controller
+    req.subscription = subscription; 
     next();
   } catch (error) {
     res.status(400).json({ message: error.message });

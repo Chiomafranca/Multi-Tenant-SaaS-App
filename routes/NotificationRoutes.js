@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, authorizeNotification } = require('../middleware/authMiddleware');
-const { createNotification, getNotificationById, getUserNotifications, markAsRead, deleteAllUserNotifications, deleteNotification } = require('../controllers/NotificationRoutes');
+const { auth, authorizeNotification } = require('../middlewares/notification');
+const { createNotification, getOneNotificationByUserId, getAllNotifications, markAsRead, deleteAllUserNotifications, deleteNotification } = require('../controllers/NotificationController');
 
+// Route for creating a new notification (Admin-only)
+router.post('/', auth, authorizeNotification(['admin']), createNotification);
 
-router.post('/notifications', authenticate, authorizeNotification(['admin']), createNotification);
+// Route to get notifications by userId (Admin & User can access)
+router.get('/:userId/one', auth, authorizeNotification(['admin', 'user']), getOneNotificationByUserId);
 
+// Route to get all notifications (Admin & User can access)
+router.get('/', auth, authorizeNotification(['admin', 'user']), getAllNotifications);
 
-router.get('/notifications/user/:userId', authenticate, authorizeNotification(['admin', 'user']), getNotificationById);
+// Route to mark a notification as read (Admin & User can access)
+router.put('/:userId/read', auth, authorizeNotification(['admin', 'user']), markAsRead);
 
+// Route to delete all notifications for a user (Admin-only)
+router.delete('/:userId', auth, authorizeNotification(['admin']), deleteAllUserNotifications);
 
-router.get('/notifications/:id', authenticate, authorizeNotification(['admin', 'user']), getUserNotifications);
-
-
-router.put('/notifications/:id/read', authenticate, authorizeNotification(['admin', 'user']), markAsRead);
-
-
-router.delete('/notifications/:id', authenticate, authorizeNotification(['admin']), deleteAllUserNotifications);
-
-
-router.delete('/notifications/user/:userId', authenticate, authorizeNotification(['admin', 'user']), deleteNotification);
+// Route to delete a specific notification (Admin & User can access)
+router.delete('/:id', auth, authorizeNotification(['admin', 'user']), deleteNotification);
 
 module.exports = router;

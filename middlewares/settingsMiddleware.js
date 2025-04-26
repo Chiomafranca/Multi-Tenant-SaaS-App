@@ -1,4 +1,4 @@
-const Settings = require('../models/Settings');
+const Settings = require('../models/SettingsModel');
 
 // Middleware to check if settings exist for a tenant
 const checkSettingsExists = async (req, res, next) => {

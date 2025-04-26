@@ -1,4 +1,4 @@
-const Settings = require('../models/Settings');
+const Settings = require('../models/SettingsModel');
 
 // Get settings for a tenant
 const getSettings = async (req, res) => {
@@ -53,17 +53,18 @@ const resetSettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
-    await Settings.findOneAndUpdate(
+    const setting = await Settings.findOneAndUpdate(
       { tenantId },
       {
         general: { appName: 'My SaaS App', theme: 'light', language: 'en' },
         billing: { currency: 'USD', taxRate: 0 },
         notifications: { emailNotifications: true, smsNotifications: false },
       },
-      { new: true }
+      { new: true, upsert: true }
     );
 
-    res.status(200).json({ message: 'Settings reset to default' });
+    res.status(200).json({ setting });
+       
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

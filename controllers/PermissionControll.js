@@ -1,4 +1,4 @@
-const Permission = require('../models/Permission');
+const Permission = require('../models/PermissionModel');
 
 // Create a new permission
 const createPermission = async (req, res) => {

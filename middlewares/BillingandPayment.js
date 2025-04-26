@@ -1,29 +1,42 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/User'); // Import the User model
+const User = require('../models/UserModel'); 
+const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser'); 
+
+dotenv.config()
 
 // Authentication middleware to verify JWT token
-const authenticate = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
 
-    if (!token) {
-      return res.status(403).json({ message: 'No token provided' });
+const auth = (req, res, next) => {
+  let token = req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer ') 
+    ? req.headers['authorization'].split(' ')[1] 
+    : req.cookies.token;
+
+  console.log("Token extracted:", token);
+  console.log('SECRET_KEY in middleware:', process.env.SECRET_KEY);  
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token is missing' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);  
+    req.user = decoded;  
+    next();  
+  } catch (error) {
+    console.error("JWT Error:", error);
+
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({ message: 'Token has expired' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-
-    // Optionally, add user info (like roles) to the request object
-    const user = await User.findById(req.user.id);
-    req.user.role = user.role;
-
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+    
+    res.status(403).json({ message: 'Invalid or malformed token' });
   }
 };
 
-// Authorization middleware to restrict access to certain roles
+
 const authorizeBilling = (roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -33,4 +46,4 @@ const authorizeBilling = (roles) => {
   };
 };
 
-module.exports = { authenticate, authorizeBilling };
+module.exports = { auth, authorizeBilling };

@@ -1,19 +1,33 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');  // Assuming you have a User model
+const User = require('../models/UserModel');  
 
 // Authentication Middleware (Verify JWT)
-const authenticate = async (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+const auth = (req, res, next) => {
+  let token = req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer ') 
+    ? req.headers['authorization'].split(' ')[1] 
+    : req.cookies.token;
+
+  console.log("Token extracted:", token);
+  console.log('SECRET_KEY in middleware:', process.env.SECRET_KEY);  
+
   if (!token) {
-    return res.status(401).json({ message: 'Access denied. No token provided.' });
+    return res.status(401).json({ message: 'Token is missing' });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-    req.user = decoded;
-    next();
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);  
+    req.user = decoded;  
+    next();  
   } catch (error) {
-    res.status(401).json({ message: 'Invalid or expired token.' });
+    console.error("JWT Error:", error);
+
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({ message: 'Token has expired' });
+    }
+
+    
+    res.status(403).json({ message: 'Invalid or malformed token' });
   }
 };
 
@@ -34,5 +48,4 @@ const authorizeFeatureToggle = (allowedRoles) => {
     next();
   };
 };
-
-module.exports={authenticate, authorizeFeatureToggle};
+module.exports={auth, authorizeFeatureToggle};

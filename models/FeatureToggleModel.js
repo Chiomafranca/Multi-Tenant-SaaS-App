@@ -15,7 +15,7 @@ const featureToggleSchema = new mongoose.Schema({
   enabled: {
     type: Boolean,
     required: true,
-    default: false,  // Default is 'false', feature is disabled unless specified otherwise
+    default: false,  
   },
   createdAt: {
     type: Date,

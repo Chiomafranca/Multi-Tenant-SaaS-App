@@ -1,16 +1,16 @@
 // controllers/SupportTicketController.js
-const SupportTicketModel = require('../models/SupportTicketModel');
+const SupportTicketModel = require('../models/SupportTicket');
 const logger = require('../config/logger');
 
 const createTicket = async (req, res) => {
     try {
-        const { title, description } = req.body;
-        const ticket = new SupportTicketModel({ title, description });
+        const { tenantId, userId, subject, message } = req.body;
+        const ticket = new SupportTicketModel({ tenantId, userId, subject, message });
         await ticket.save();
-        logger.info(`Support ticket created: ${ticket._id}`);  // Log ticket creation
+        logger.info(`Support ticket created: ${ticket._id}`);
         res.status(201).json(ticket);
     } catch (error) {
-        logger.error(`Error creating support ticket: ${error.message}`);  // Log error
+        logger.error(`Error creating support ticket: ${error.message}`);
         res.status(500).json({ message: 'Failed to create ticket' });
     }
 };
@@ -18,55 +18,68 @@ const createTicket = async (req, res) => {
 const getAllTickets = async (req, res) => {
     try {
         const tickets = await SupportTicketModel.find();
-        logger.info(`Fetched all support tickets`);  // Log fetching tickets
         res.status(200).json(tickets);
     } catch (error) {
-        logger.error(`Error fetching support tickets: ${error.message}`);  // Log error
         res.status(500).json({ message: 'Failed to fetch tickets' });
     }
 };
 
 const getTicketById = async (req, res) => {
     try {
-        const ticket = await SupportTicketModel.findById(req.params.id);
+        const { tenantId, id } = req.params; // get both tenantId and ticketId
+        const ticket = await SupportTicketModel.findOne({ tenantId, _id: id });
+
         if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found' });
+            return res.status(404).json({ message: 'Ticket not found for this tenant' });
         }
-        logger.info(`Fetched ticket: ${ticket._id}`);  // Log fetching specific ticket
+
         res.status(200).json(ticket);
     } catch (error) {
-        logger.error(`Error fetching ticket by ID: ${error.message}`);  // Log error
-        res.status(500).json({ message: 'Failed to fetch ticket' });
+        res.status(500).json({ message: 'Failed to fetch ticket', error: error.message });
     }
 };
+
 
 const updateTicket = async (req, res) => {
     try {
-        const ticket = await SupportTicketModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const { tenantId, id } = req.params; 
+
+        const ticket = await SupportTicketModel.findOneAndUpdate(
+            { tenantId, _id: id },
+            req.body,
+            { new: true }
+        );
+
         if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found' });
+            return res.status(404).json({ message: 'Ticket not found for this tenant' });
         }
-        logger.info(`Updated ticket: ${ticket._id}`);  // Log updating ticket
-        res.status(200).json(ticket);
+
+        res.status(200).json({ ticket, message: "Ticket updated successfully" });
+
     } catch (error) {
-        logger.error(`Error updating ticket: ${error.message}`);  // Log error
-        res.status(500).json({ message: 'Failed to update ticket' });
+        res.status(500).json({ message: 'Failed to update ticket', error: error.message });
     }
 };
 
+
 const deleteTicket = async (req, res) => {
     try {
-        const ticket = await SupportTicketModel.findByIdAndDelete(req.params.id);
+        const { tenantId, id } = req.params;  // Use id, not ticketId
+
+        // Find and delete the ticket by tenantId and id
+        const ticket = await SupportTicketModel.findOneAndDelete({ tenantId, _id: id });
+
         if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found' });
+            return res.status(404).json({ message: 'Ticket not found for this tenant' });
         }
-        logger.info(`Deleted ticket: ${ticket._id}`);  // Log deleting ticket
+
         res.status(200).json({ message: 'Ticket deleted' });
     } catch (error) {
-        logger.error(`Error deleting ticket: ${error.message}`);  // Log error
-        res.status(500).json({ message: 'Failed to delete ticket' });
+        res.status(500).json({ message: 'Failed to delete ticket', error: error.message });
     }
 };
+
+
 
 module.exports = {
     createTicket,

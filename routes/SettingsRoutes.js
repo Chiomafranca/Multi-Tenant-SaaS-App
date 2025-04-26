@@ -1,22 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, authorizeRole } = require('../middleware/roleMiddleware');
-const { checkSettingsExists } = require('../middleware/settingsMiddleware');
+const { auth, authorizeRole } = require('../middlewares/roleMiddleware');
+const { checkSettingsExists } = require('../middlewares/settingsMiddleware');
 const { getSettings, getAllSettings, updateSettings, resetSettings, deleteSettings } = require('../controllers/SettingController');
 
 
-router.get('/settings/:tenantId', authenticate, checkSettingsExists, getSettings);
+router.get('/:tenantId', auth, checkSettingsExists, getSettings);
 
 
-router.get('/settings', authenticate, authorizeRole(['admin']), getAllSettings);
+router.get('/', authorizeRole(['admin']),   getAllSettings);
 
 
-router.put('/settings/:tenantId', authenticate, authorizeRole(['admin']), updateSettings);
+router.put('/:tenantId', auth, authorizeRole(['admin']), updateSettings);
 
 
-router.post('/settings/:tenantId/reset', authenticate, authorizeRole(['admin']), checkSettingsExists, resetSettings);
+router.post('/:tenantId/reset', auth,  resetSettings);
 
 
-router.delete('/settings/:tenantId', authenticate, authorizeRole(['admin']), checkSettingsExists, deleteSettings);
+router.delete('/:tenantId', auth, authorizeRole(['admin']), checkSettingsExists, deleteSettings);
+
 
 module.exports = router;

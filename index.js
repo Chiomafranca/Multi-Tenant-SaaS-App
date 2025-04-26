@@ -18,13 +18,25 @@ const { setupUptime } = require("./config/uptime");
 const { monitorUptime } = require("./services/uptimeService");
 const connectDB = require("./config/db");
 
+
 // Routes
 const authRoutes = require("./routes/authRoutes");
 const tenantRoutes = require("./routes/tenantRoutes");
-const paymentRoutes = require("./routes/subscriptionRoutes");
+// const paymentRoutes = require("./routes/");
 const roleRoutes = require("./routes/roleRoutes");
-const auditLoggerRoutes = require("./routes/ActivityLogRoutes");
+const auditLoggerRoutes = require("./routes/AuditLogRoutes");
 const apiKeyRoutes = require("./routes/ApikeyRoutes");
+const activityLogRoutes = require('./routes/ActivityLogRoutes');
+const billingandPaymentRoutes = require('./routes/BillingandPaymentRoutes');
+const featureToggleControllerRoutes = require('./routes/FeatureToggleRoutes');
+const notificationRoutes = require("./routes/NotificationRoutes");
+const permissionRoutes = require("./routes/PermissionRoutes");
+const securityRoutes = require('./routes/SecurityRoutes');
+const settingRoutes = require('./routes/SettingsRoutes');
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
+const supportRoutes = require('./routes/SupportTicketRoutes')
+
+
 
 // Cookie parsing middleware
 const cookieParser = require("cookie-parser");
@@ -55,11 +67,21 @@ applyRateLimiting(app); // ✅ Apply before routes
 // Routes
 app.use("/auth", authRoutes);
 app.use("/api/tenants", tenantRoutes);
-app.use("/api/payments", paymentRoutes);
+// app.use("/api/payments", paymentRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use("/api/audit", auditLoggerRoutes); // ✅ Audit log route
+app.use("/api/audit", auditLoggerRoutes); 
 app.use("/api/apikey", apiKeyRoutes);
+app.use("/api/activity", activityLogRoutes);
+app.use('/api/billing', billingandPaymentRoutes);
+app.use('/api/toggle', featureToggleControllerRoutes);
+app.use('/api/notification', notificationRoutes);
+app.use('/api/permission', permissionRoutes);
+app.use('/api/security', securityRoutes);
+app.use('/api/settings', settingRoutes);
+app.use('/api/subcription', subscriptionRoutes);
+app.use('/api/support', supportRoutes)
+
 
 // Misc Routes
 app.get("/healthcheck", (req, res) => res.status(200).send("OK"));

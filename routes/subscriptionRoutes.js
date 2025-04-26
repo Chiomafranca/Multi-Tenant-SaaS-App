@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, authorizeRole } = require('../middlewares/roleMiddleware');
+const { auth, authorizeRole } = require('../middlewares/roleMiddleware');
 const { checkSubscriptionExists, validateSubscriptionData } = require('../middlewares/subscriptionMiddleware');
 const { createSubscription, getSubscription, getAllSubscriptions, updateSubscription, deleteSubscription, deactivateSubscription } = require('../controllers/subscriptionController');
 
 
-router.post('/', authenticate, authorizeRole(['admin', 'manager']), validateSubscriptionData, createSubscription);
+router.post('/', auth, validateSubscriptionData, createSubscription);
 
 
-router.get('/:id', authenticate, checkSubscriptionExists, getSubscription);
+router.get('/:id', auth, checkSubscriptionExists, getSubscription);
 
 
-router.get('/', authenticate, authorizeRole(['admin']), getAllSubscriptions);
+router.get('/', auth, authorizeRole(['admin']), getAllSubscriptions);
 
 
-router.put('/:id', authenticate, authorizeRole(['admin', 'manager']), checkSubscriptionExists, validateSubscriptionData, updateSubscription);
+router.put('/:id', auth, authorizeRole(['admin', 'manager']), checkSubscriptionExists, validateSubscriptionData, updateSubscription);
 
 
-router.delete('/:id', authenticate, authorizeRole(['admin']), checkSubscriptionExists, deleteSubscription);
+router.delete('/:id', auth, authorizeRole(['admin']), checkSubscriptionExists, deleteSubscription);
 
-router.patch('/:id/deactivate', authenticate, authorizeRole(['admin', 'manager']), checkSubscriptionExists, deactivateSubscription);
+router.patch('/:id/deactivate', auth, authorizeRole(['admin', 'manager']), checkSubscriptionExists, deactivateSubscription);
 
 module.exports = router;

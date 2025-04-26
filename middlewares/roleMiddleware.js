@@ -1,26 +1,37 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/UserModel'); // Assuming a User model exists
+const User = require('../models/UserModel'); 
+const dotenv = require('dotenv');
+
+dotenv.config()
 
 // Authenticate user using JWT
-const authenticate = async (req, res, next) => {
-    try {
-        const token = req.header('Authorization').replace('Bearer ', '');
-        if (!token) {
-            return res.status(401).json({ message: 'Authorization token is required' });
-        }
+const auth = (req, res, next) => {
+  let token = req.headers['authorization'] && req.headers['authorization'].startsWith('Bearer ') 
+    ? req.headers['authorization'].split(' ')[1] 
+    : req.cookies.token;
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.userId);
+  console.log("Token extracted:", token);
+  console.log('SECRET_KEY in middleware:', process.env.SECRET_KEY);  
 
-        if (!user) {
-            return res.status(401).json({ message: 'User not found' });
-        }
+  if (!token) {
+    return res.status(401).json({ message: 'Token is missing' });
+  }
 
-        req.user = user;
-        next();
-    } catch (error) {
-        res.status(401).json({ message: 'Authentication failed', error });
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);  
+    req.user = decoded;  
+    next();  
+  } catch (error) {
+    console.error("JWT Error:", error);
+
+    
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({ message: 'Token has expired' });
     }
+
+    
+    res.status(403).json({ message: 'Invalid or malformed token' });
+  }
 };
 
 // Authorize user based on their role (admin only for role management)
@@ -33,4 +44,4 @@ const authorizeRole = (allowedRoles) => {
     };
 };
 
-module.exports = { authenticate, authorizeRole };
+module.exports = { auth, authorizeRole };

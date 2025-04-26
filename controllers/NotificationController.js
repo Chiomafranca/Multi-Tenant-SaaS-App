@@ -1,10 +1,14 @@
 // controllers/NotificationController.js
-const Notification = require('../models/Notification');
+const Notification = require('../models/NotificationModel');
 
 // Create a new notification
 const createNotification = async (req, res) => {
   try {
     const { userId, tenantId, title, message, type } = req.body;
+
+    if (!userId || !tenantId || !title || !message || !type) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
 
     const notification = new Notification({
       userId,
@@ -22,31 +26,34 @@ const createNotification = async (req, res) => {
   }
 };
 
-// Get a single notification by ID
-const getNotificationById = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const notification = await Notification.findById(id);
-  
-      if (!notification) {
-        return res.status(404).json({ message: 'Notification not found' });
-      }
-  
-      res.status(200).json(notification);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
-    }
-  };
-  
-
-// Get all notifications for a user
-const getUserNotifications = async (req, res) => {
+// Get notifications for a user by userId
+// Get notifications by userId
+// Get notifications by userId
+// Get one notification by userId
+const getOneNotificationByUserId = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.params;  // Extract userId from URL parameters
 
-    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+    // Fetch a single notification for this userId
+    const notification = await Notification.findOne({ userId }).sort({ createdAt: -1 });
+
+    if (!notification) {
+      return res.status(404).json({ message: 'No notification found for this user' });
+    }
+
+    res.status(200).json(notification);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+// Get all notifications (Admin functionality)
+const getAllNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({ createdAt: -1 });
 
     if (!notifications.length) {
       return res.status(404).json({ message: 'No notifications found' });
@@ -62,12 +69,17 @@ const getUserNotifications = async (req, res) => {
 // Mark a notification as read
 const markAsRead = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params; // Only use userId
 
-    const notification = await Notification.findByIdAndUpdate(id, { read: true }, { new: true });
+    // Find the first unread notification for the user and mark it as read
+    const notification = await Notification.findOneAndUpdate(
+      { userId: userId, isRead: false }, // Target unread notifications
+      { isRead: true }, // Mark as read
+      { new: true } // Return the updated notification
+    );
 
     if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(404).json({ message: 'No unread notifications found for this user' });
     }
 
     res.status(200).json({ message: 'Notification marked as read', notification });
@@ -109,4 +121,11 @@ const deleteAllUserNotifications = async (req, res) => {
   }
 };
 
-module.exports={createNotification, getNotificationById, getUserNotifications, markAsRead, deleteAllUserNotifications, deleteNotification}
+module.exports = {
+  createNotification,
+  getOneNotificationByUserId,
+  getAllNotifications,
+  markAsRead,
+  deleteAllUserNotifications,
+  deleteNotification,
+};

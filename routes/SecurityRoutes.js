@@ -1,24 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const { checkAdminPermission } = require('../middleware/securityMiddleware');
-const { createSecuritySettings, updateTwoFactor, getSecuritySettings, updatePasswordPolicy, getAccessLogs, deleteSecuritySettings } = require('../controllers/SecurityController');
+const { 
+  createSecuritySettings,
+  updateTwoFactor, 
+  getSecuritySettings, 
+  updatePasswordPolicy, 
+  getAllSecurities, 
+  deleteSecuritySettings 
+} = require('../controllers/SecurityController');
+const { checkTenantExists, validatePasswordPolicy, validateTwoFactor, validate } = require('../middlewares/securityMiddleware');
 
+// Create security settings
+router.post('/:tenantId', checkTenantExists, createSecuritySettings);
 
-router.post('/:tenantId', checkAdminPermission, createSecuritySettings);
+// Update Two-Factor Authentication
+router.put('/:tenantId/two-factor', checkTenantExists, validateTwoFactor, validate, updateTwoFactor);
 
+// Get security settings
+router.get('/:tenantId', getSecuritySettings);
 
-router.put('/:tenantId/two-factor', checkAdminPermission, updateTwoFactor);
+// Update password policy
+router.patch('/:tenantId/password-policy', validatePasswordPolicy, validate, updatePasswordPolicy);
 
+// Get access logs
+router.get('/', getAllSecurities);
 
-router.get('/:tenantId', checkAdminPermission, getSecuritySettings);
-
-
-router.put('/:tenantId/password-policy', checkAdminPermission, updatePasswordPolicy);
-
-
-router.get('/:tenantId/access-logs', checkAdminPermission, getAccessLogs);
-
-
-router.delete('/:tenantId', checkAdminPermission, deleteSecuritySettings);
+// Delete security settings
+router.delete('/:tenantId', deleteSecuritySettings);
 
 module.exports = router;

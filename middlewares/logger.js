@@ -2,7 +2,8 @@ const logger = require('../config/logger');
 
 
 const logRequests = (req, res, next) => {
-    const start = Date.now();  
+    const start = Date.now(); 
+    console.log(req.body) 
 
     logger.info(`${req.method} ${req.url}`);  
 

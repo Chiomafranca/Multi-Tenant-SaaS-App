@@ -1,19 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, authorizeFeatureToggle } = require('../middleware/authMiddleware');
-const { createFeatureToggle, updateFeatureToggle, deleteFeatureToggle, getAllFeatureToggles, getFeatureTogglesForTenant } = require('../controllers/FeatureToggleController');
+const {
+  createFeatureToggle,
+  updateFeatureToggle,
+  deleteFeatureToggle,
+  getFeatureTogglesForTenant,
+  getAllFeatureToggles,
+  getSingleFeatureToggle
+} = require('../controllers/featureToggleController');
 
+// Create a new feature toggle
+router.post('/', createFeatureToggle);
 
-router.post('/create', authenticate, authorizeFeatureToggle(['admin', 'devops']), createFeatureToggle);
+// Get all toggles for a tenant
+// router.get('/:tenantId',  getSingleFeatureToggle,);
 
+// Get a specific toggle by tenantId and featureName
+router.get('/:tenantId/:featureName', getSingleFeatureToggle);
 
-router.put('/update', authenticate, authorizeFeatureToggle(['admin', 'devops']), updateFeatureToggle);
+// Update a toggle (by tenantId + featureName)
+router.put('/:tenantId/:featureName', updateFeatureToggle);
 
+// Delete a toggle (by tenantId + featureName)
+router.delete('/:tenantId/:featureName', deleteFeatureToggle);
 
-router.delete('/:tenantId/:featureName', authenticate, authorizeFeatureToggle(['admin', 'devops']), deleteFeatureToggle);
-
-router.get('/:tenantId', authenticate, authorizeFeatureToggle(['admin', 'devops', 'tenant-manager']), getFeatureTogglesForTenant);
-
-router.get('/', authenticate, authorizeFeatureToggle(['admin']), getAllFeatureToggles);
+// Admin: Get all toggles across all tenants
+router.get('/', getAllFeatureToggles);
 
 module.exports = router;

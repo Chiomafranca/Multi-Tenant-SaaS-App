@@ -1,30 +1,28 @@
 const APIKey = require("../models/APIKeyModel");
 
 // Create API Key
+const crypto = require("crypto");
+
 const createAPIKey = async (req, res) => {
   try {
-    const { tenantId, name, scopes, key } = req.body;
+    const { tenantId } = req.body;
 
-    const existingApiKey = await APIKey.findOne({ key });
-
-    if (existingApiKey) {
-      return res.status(400).json({ message: "API Key already exists" });
-    }
+    // Generate a random 64-character API key
+    const key = crypto.randomBytes(32).toString("hex");
 
     const apiKey = new APIKey({
       tenantId,
       key,
-      name,
-      scopes,
     });
 
     await apiKey.save();
-    res.status(201).json({ message: "API Key created successfully", apiKey });
+    res.status(201).json({ message: "API key created", apiKey });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Failed to create API key" });
   }
 };
+
 
 const getAllAPIKeys = async (req, res) => {
   try {

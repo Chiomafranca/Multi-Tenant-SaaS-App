@@ -1,30 +1,39 @@
-const Security = require('../models/Security');
-const AccessLog = require('../models/AccessLog');
+const mongoose = require('mongoose');
+const Security = require('../models/SecurityModel');
 
 // Create security settings for a tenant
 const createSecuritySettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
+    const { twoFactorEnabled, passwordPolicy, accessLogs } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ message: 'Invalid tenantId format' });
+    }
+
     
-    // Check if security settings already exist for the tenant
-    let existingSettings = await Security.findOne({ tenantId });
-    if (existingSettings) {
+    const existingSecuritySettings = await Security.findOne({ tenantId });
+    if (existingSecuritySettings) {
       return res.status(400).json({ message: 'Security settings already exist for this tenant' });
     }
 
-    const securitySettings = new Security({
+    // Create new security settings
+    const newSecuritySettings = new Security({
       tenantId,
-      twoFactorEnabled: false,  // Default value
+      twoFactorEnabled: twoFactorEnabled ?? false, 
       passwordPolicy: {
-        minLength: 8,
-        requireNumbers: true,
-        requireSpecialCharacters: true,
-      }
+        minLength: passwordPolicy?.minLength || 8, // default minLength to 8 if not provided
+        requireNumbers: passwordPolicy?.requireNumbers ?? true, // default to true
+        requireSpecialCharacters: passwordPolicy?.requireSpecialCharacters ?? true // default to true
+      },
+      accessLogs: accessLogs ?? [] // default to empty array if not provided
     });
 
-    await securitySettings.save();
-    res.status(201).json({ message: 'Security settings created', securitySettings });
+    await newSecuritySettings.save();
+
+    res.status(201).json({ message: 'Security settings created successfully', newSecuritySettings });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -35,7 +44,11 @@ const updateTwoFactor = async (req, res) => {
     const { tenantId } = req.params;
     const { twoFactorEnabled } = req.body;
 
-    let securitySettings = await Security.findOne({ tenantId });
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ message: 'Invalid tenantId format' });
+    }
+
+    const securitySettings = await Security.findOne({ tenantId });
     if (!securitySettings) {
       return res.status(404).json({ message: 'Security settings not found' });
     }
@@ -45,6 +58,7 @@ const updateTwoFactor = async (req, res) => {
 
     res.status(200).json({ message: 'Two-factor authentication settings updated', securitySettings });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -54,6 +68,10 @@ const getSecuritySettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ message: 'Invalid tenantId format' });
+    }
+
     const securitySettings = await Security.findOne({ tenantId });
     if (!securitySettings) {
       return res.status(404).json({ message: 'Security settings not found' });
@@ -61,6 +79,7 @@ const getSecuritySettings = async (req, res) => {
 
     res.status(200).json(securitySettings);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -71,40 +90,49 @@ const updatePasswordPolicy = async (req, res) => {
     const { tenantId } = req.params;
     const { minLength, requireNumbers, requireSpecialCharacters } = req.body;
 
-    let securitySettings = await Security.findOne({ tenantId });
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ message: 'Invalid tenantId format' });
+    }
+
+    const securitySettings = await Security.findOne({ tenantId });
     if (!securitySettings) {
       return res.status(404).json({ message: 'Security settings not found' });
     }
 
-    securitySettings.passwordPolicy = { minLength, requireNumbers, requireSpecialCharacters };
+    // Update only provided fields
+    if (minLength !== undefined) securitySettings.passwordPolicy.minLength = minLength;
+    if (requireNumbers !== undefined) securitySettings.passwordPolicy.requireNumbers = requireNumbers;
+    if (requireSpecialCharacters !== undefined) securitySettings.passwordPolicy.requireSpecialCharacters = requireSpecialCharacters;
+
     await securitySettings.save();
 
     res.status(200).json({ message: 'Password policy updated', securitySettings });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Get all access logs for a tenant
-const getAccessLogs = async (req, res) => {
+//  Get All Securities
+const getAllSecurities = async (req, res) => {
   try {
-    const { tenantId } = req.params;
-
-    const securitySettings = await Security.findOne({ tenantId }).populate('accessLogs');
-    if (!securitySettings) {
-      return res.status(404).json({ message: 'Security settings not found' });
-    }
-
-    res.status(200).json(securitySettings.accessLogs);
+    const securities = await Security.find();
+    res.status(200).json(securities);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // Delete security settings for a tenant
 const deleteSecuritySettings = async (req, res) => {
   try {
     const { tenantId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(tenantId)) {
+      return res.status(400).json({ message: 'Invalid tenantId format' });
+    }
 
     const securitySettings = await Security.findOneAndDelete({ tenantId });
     if (!securitySettings) {
@@ -113,14 +141,16 @@ const deleteSecuritySettings = async (req, res) => {
 
     res.status(200).json({ message: 'Security settings deleted' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-module.exports={createSecuritySettings,
-   getSecuritySettings,
-    updateTwoFactor,
-     getAccessLogs,
-     updatePasswordPolicy,
-     deleteSecuritySettings
-    }
+module.exports = {
+  createSecuritySettings,
+  getSecuritySettings,
+  updateTwoFactor,
+  getAllSecurities,
+  updatePasswordPolicy,
+  deleteSecuritySettings
+};
