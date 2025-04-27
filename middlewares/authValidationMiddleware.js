@@ -3,8 +3,12 @@ const { body, validationResult } = require('express-validator');
 // Validation rules for registering a user
 const registerValidation = [
   body('email').isEmail().withMessage('Please enter a valid email address'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-  body('role').isIn(['admin', 'user']).withMessage('Role must be either "admin" or "user"'),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long'),
+  body('role')
+    .isIn(['admin', 'user'])
+    .withMessage('Role must be either "admin" or "user"'),
 ];
 
 // Validation rules for logging in

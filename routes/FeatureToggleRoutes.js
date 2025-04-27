@@ -6,8 +6,8 @@ const {
   deleteFeatureToggle,
   getFeatureTogglesForTenant,
   getAllFeatureToggles,
-  getSingleFeatureToggle
-} = require('../controllers/featureToggleController');
+  getSingleFeatureToggle,
+} = require('../controllers/FeatureToggleController');
 
 // Create a new feature toggle
 router.post('/', createFeatureToggle);

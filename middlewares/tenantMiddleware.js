@@ -1,15 +1,17 @@
+const { default: mongoose } = require('mongoose');
 const Tenant = require('../models/TenantModel');
 const { validateTenantData } = require('../utils/validationUtils');
 
 // Middleware to check if tenant exists
 const checkTenantExists = async (req, res, next) => {
   try {
-    const tenant = await Tenant.findById(req.params.id); 
+    const tenant = await Tenant.findById(req.params.id);
     if (!tenant) {
-      return res.status(404).json({ message: `Tenant with ID ${req.params.id} not found` });
-
+      return res
+        .status(404)
+        .json({ message: `Tenant with ID ${req.params.id} not found` });
     }
-    req.tenant = tenant; 
+    req.tenant = tenant;
     next();
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -19,10 +21,12 @@ const checkTenantExists = async (req, res, next) => {
 // Middleware to validate tenant data
 const validateTenant = (req, res, next) => {
   const { name, owner, plan } = req.body;
-  const { error } = validateTenantData({ name, owner, plan });
-  if (error) {
+  const result = validateTenantData({ name, owner, plan });
+  console.log(result);
+  if (result !== null) {
     return res.status(400).json({ message: error.details[0].message });
   }
+
   next();
 };
 
@@ -39,31 +43,30 @@ const checkTenantPlan = (req, res, next) => {
 // Middleware to authenticate tenant owner
 // Middleware to authenticate tenant owner
 const authenticateTenantOwner = (req, res, next) => {
-  const user = req.user;  // The user object should be populated from the JWT payload
-  const tenantId = req.params.tenant;
-
-  console.log('User:', user);  // Log the user object
-  console.log('Tenant ID from request:', tenantId);  // Log tenant ID from URL
+  const user = req.user; // The user object should be populated from the JWT payload
+  const tenantId = req.params.tenantId;
 
   if (!user || !tenantId) {
     return res.status(400).json({ message: 'User or Tenant ID is missing' });
   }
 
-  console.log('User Tenant ID:', user.tenantId);  // Log the tenantId from the decoded token
-  console.log('Tenant ID from Request:', tenantId);  // Log the tenant ID from the request
+  const tenantIdCheck = new mongoose.Types.ObjectId(tenantId);
 
-  // Compare tenantId in request with tenantId in user object
-  if (user.tenantId && tenantId && user.tenantId === tenantId) {
-    return next();  // Proceed to the next middleware or route handler
+  if (
+    user.tenant.some(
+      (tenant) => tenant._id.toString() === tenantIdCheck.toString()
+    )
+  ) {
+    console.log('Authorized');
+    return next();
   }
 
-  return res.status(403).json({ message: 'You are not authorized to access this tenant' });
+  return res
+    .status(403)
+    .json({ message: 'You are not authorized to access this tenant' });
 };
 
 module.exports = authenticateTenantOwner;
-
-
-
 
 module.exports = {
   checkTenantExists,
